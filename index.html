@@ -1,25 +1,176 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Instascan</title>
-    <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
-  </head>
-  <body>
-    <video id="preview"></video>
-    <script type="text/javascript">
-      let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-      scanner.addListener('scan', function (content) {
-        console.log(content);
-      });
-      Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-          scanner.start(cameras[0]);
-        } else {
-          console.error('No cameras found.');
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Face Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+  <!-- <script src="main.js"></script> -->
+  <script>
+    function showFilled(Value) {
+      return (Value > 9) ? "" + Value : "0" + Value;
+    }
+    function StartClock24() {
+      TheTime = new Date;
+      document.clock.showTime.value = showFilled(TheTime.getHours()) + ":" +
+        showFilled(TheTime.getMinutes()) + ":" + showFilled(TheTime.getSeconds());
+      setTimeout("StartClock24()", 1000)
+    }
+  </script>
+  <style type="text/css">
+    .show-time {
+      text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-size: 5rem;
+      border-style: none;
+    }
+
+    .show-date {
+      text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-size: 2rem;
+      border-style: none;
+      width: 200px;
+    }
+
+    .clock-box,
+    .date-box {
+      width: 100%;
+    }
+
+    .camera-preview {
+      box-shadow: 0 0 10px #2ee273;
+      border: 2px solid #2ee273;
+      height: 433px;
+      width: 692px;
+      margin-top: 170px;
+    }
+
+    .camera-box,
+    .date-box {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .clock {
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+    }
+
+    .button-box {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      margin-top: 10px;
+    }
+
+    .button-click {
+      width: 150px;
+      height: 50px;
+      border-radius: 30px;
+      background-color: black;
+      color: #ffffff;
+    }
+
+    .realtime-box {
+      height: 400px;
+    }
+
+    .box-left {
+      float: left;
+      margin-left: 80px;
+      margin-top: 60px;
+    }
+
+    .box-right {
+      margin-left: 100px;
+    }
+  </style>
+</head>
+
+<body onload="StartClock24()">
+  <div class="container">
+    <div class="box-left">
+      <div class="clock-box">
+        <form name="clock" class="clock">
+          <input type="text" name="showTime" size="8" class="show-time">
+        </form>
+      </div>
+      <div class="date-box">
+        <input type="text" class="show-date" size="6" id="show-date">
+      </div>
+      <div class="realtime-box">
+        <p id="realtime"></p>
+      </div>
+      <div class="button-box">
+        <a href="report.html" target="_blank">Report >></a>
+      </div>
+    </div>
+    <div class="box-right">
+      <div class="camera-box">
+        <video class="camera-preview" id="preview" width="1000"></video>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var date = document.getElementById('show-date');
+
+    dateNow = new Date;
+
+    date.value = `${dateNow.getDate()}-${dateNow.getMonth() + 1}-${dateNow.getFullYear()}`
+
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    scanner.addListener('scan', function (content) {
+      $.ajax({
+        type: "POST",
+        url: 'http://localhost:5000/timestamp',
+        data: { faceID: content },
+        success: function (data) {
+          getRealtime()
         }
-      }).catch(function (e) {
-        console.error(e);
       });
-    </script>
-  </body>
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+      if (cameras.length > 0) {
+        scanner.start(cameras[0]);
+      } else {
+        console.error('No cameras found.');
+      }
+    }).catch(function (e) {
+      console.error(e);
+    });
+    function getRealtime() {
+
+      var options = {
+        weekday: "long", year: "numeric", month: "short",
+        day: "numeric", hour: "2-digit", minute: "2-digit"
+      };
+
+      date = new Date
+      dateFilter = `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
+
+      $.get("http://localhost:5000/report?limit=10&date=" + dateFilter, function (res) {
+        var text = ''
+        dateText = new Date(row.out).toLocaleTimeString("en-us", options)
+        res.result.forEach(row => {
+          text += row.name + ' เวลา ' + dateText + '<br>'
+        });
+        document.getElementById('realtime').innerHTML = text
+      });
+    }
+    getRealtime()
+  </script>
+</body>
+
 </html>
