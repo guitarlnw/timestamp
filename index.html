@@ -95,6 +95,13 @@
     .box-right {
       margin-left: 100px;
     }
+
+    .img-success {
+      position: absolute;
+      top: 250px;
+      z-index: 9999;
+      display: none;
+    }
   </style>
 </head>
 
@@ -118,6 +125,7 @@
     </div>
     <div class="box-right">
       <div class="camera-box">
+        <img src="success.png" id="img-success" class="img-success" />
         <video class="camera-preview" id="preview" width="1000"></video>
       </div>
     </div>
@@ -138,6 +146,10 @@
         data: { faceID: content },
         success: function (data) {
           getRealtime()
+          document.getElementById('img-success').style.display = 'block'
+          setTimeout(function () {
+            document.getElementById('img-success').style.display = 'none'
+          }, 1000)
         }
       });
     });
@@ -164,7 +176,7 @@
         var text = ''
         res.result.forEach(row => {
           dateText = new Date(row.out).toLocaleTimeString("en-us", options)
-          text += row.name + ' เวลา ' + dateText + '<br>'
+          text += row.name + ' (' + dateText + ')<br>'
         });
         document.getElementById('realtime').innerHTML = text
       });
