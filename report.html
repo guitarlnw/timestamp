@@ -64,14 +64,16 @@
     // document.getElementById('date').value = dateNow1
 
     dateNow1 = date.getDate()
-    if (date.getDate().length === 1) {
-      dateNow1 = `0${date.getDate()}`
+
+    if (dateNow1.toString().length === 1) {
+      dateNow1 = `0${dateNow1}`
     }
-    monthNow1 = date.getMonth()
-    if ((date.getMonth() + 1).length === 1) {
-      monthNow1 = `0${date.getMonth()}`
+
+    monthNow1 = date.getMonth()+1
+    if (monthNow1.toString().length === 1) {
+      monthNow1 = `0${monthNow1}`
     }
-    document.getElementById("date").defaultValue = `${date.getFullYear()}-${dateNow1}-${monthNow1}`;
+    document.getElementById("date").defaultValue = `${date.getFullYear()}-${monthNow1}-${dateNow1}`;
 
     var options = {
       weekday: "long", year: "numeric", month: "short",
@@ -116,7 +118,11 @@
     dateSelect = dateSelect.split('-')
     newDateSelect = `${dateSelect[1]}-${dateSelect[2]}-${dateSelect[0]}`
 
-    console.log(newDateSelect)
+   var options = {
+      weekday: "long", year: "numeric", month: "short",
+      day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+
     $.get(`http://localhost:5000/report?date=${newDateSelect}`, function (data) {
       console.log('change data ->>>', data)
       var newData = ''
