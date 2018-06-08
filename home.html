@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Face Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+  <!-- <script src="main.js"></script> -->
+  <SCRIPT LANGUAGE="JavaScript">
+    function showFilled(Value) {
+      return (Value > 9) ? "" + Value : "0" + Value;
+    }
+    function StartClock24() {
+      TheTime = new Date;
+      document.clock.showTime.value = showFilled(TheTime.getHours()) + ":" +
+        showFilled(TheTime.getMinutes()) + ":" + showFilled(TheTime.getSeconds());
+      setTimeout("StartClock24()", 1000)
+    }
+  </script>
+  <style type="text/css">
+    .show-time {
+      text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-size: 5rem;
+      border-style: none;
+    }
+
+    .show-date {
+      text-align: center;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      font-size: 2rem;
+      border-style: none;
+      width: 200px;
+    }
+
+    .clock-box,
+    .date-box {
+      width: 100%;
+    }
+
+    .camera-preview {
+      box-shadow: 0 0 10px #2ee273; 
+      border: 2px solid #2ee273;
+      height: 370px;
+      width: 500px;
+    }
+
+    .camera-box,
+    .date-box {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .clock {
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+    }
+    
+    .button-box {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      margin-top: 10px;
+    }
+
+    .button-click {
+      width: 150px;
+      height: 50px;
+      border-radius: 30px;
+      background-color: black;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body onload="StartClock24()">
+  <div class="container">
+    <div class="clock-box">
+      <form name="clock" class="clock">
+        <input type="text" name="showTime" size="8" class="show-time">
+      </form>
+    </div>
+    <div class="date-box">
+      <input type="text" class="show-date" size="6" id="show-date">
+    </div>
+    <div class="camera-box">
+      <video class="camera-preview" id="video" autoplay width="1000" >
+
+      </video>
+    </div>
+    <div class="button-box">
+      <button class="button-click">Report >></button>
+    </div>
+  </div>
+
+  <script>
+    var date = document.getElementById('show-date');
+    var video = document.getElementById('video');
+
+    dateNow = new Date;
+
+    date.value = `${dateNow.getDate()}-${dateNow.getMonth()}-${dateNow.getFullYear()}`
+
+    // Get access to the camera!
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Not adding `{ audio: true }` since we only want video now
+      navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+        // console.log(stream)
+        video.src = window.URL.createObjectURL(stream);
+        // video.play();
+      });
+    }
+  </script>
+</body>
+
+</html>
