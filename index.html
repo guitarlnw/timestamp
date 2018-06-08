@@ -162,8 +162,8 @@
 
       $.get("http://localhost:5000/report?limit=10&date=" + dateFilter, function (res) {
         var text = ''
-        dateText = new Date(row.out).toLocaleTimeString("en-us", options)
         res.result.forEach(row => {
+          dateText = new Date(row.out).toLocaleTimeString("en-us", options)
           text += row.name + ' เวลา ' + dateText + '<br>'
         });
         document.getElementById('realtime').innerHTML = text
