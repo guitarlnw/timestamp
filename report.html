@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Report</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
   <style>
     table {
@@ -32,10 +33,11 @@
   </style>
 </head>
 
-<body>
+<body onload="firstReport()">
   <div class="box-report">
     <div class="date-pick">
-      Date: <input id="date" type="date">
+      Date:
+      <input id="date" type="date" value="" onchange="onChangeDate()">
     </div>
     <table>
       <thead>
@@ -46,14 +48,106 @@
           <th>Out</th>
         </tr>
       </thead>
-      <tr>
-        <td>1</td>
-        <td>สุทธิลักษณ์ บุญเรือง</td>
-        <td>08:56</td>
-        <td>18.16</td>
-      </tr>
+      <tbody id="show-data">
+      </tbody>
     </table>
   </div>
 </body>
+
+
+<script>
+  function firstReport() {
+    date = new Date
+    dateNow = `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
+    // dateNow1 = `${date.getFullYear()}-${date.getDate()}-${date.getMonth() + 1}`
+
+    // document.getElementById('date').value = dateNow1
+
+    dateNow1 = date.getDate()
+    if (date.getDate().length === 1) {
+      dateNow1 = `0${date.getDate()}`
+    }
+    monthNow1 = date.getMonth()
+    if ((date.getMonth() + 1).length === 1) {
+      monthNow1 = `0${date.getMonth()}`
+    }
+    document.getElementById("date").defaultValue = `${date.getFullYear()}-${dateNow1}-${monthNow1}`;
+
+    var options = {
+      weekday: "long", year: "numeric", month: "short",
+      day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+
+    $.get(`http://localhost:5000/report?date=${dateNow}`, function (data) {
+      console.log('first data ->>>', data)
+
+      var newData = ''
+      if (data.result.length !== 0) {
+        data.result.forEach((row, index) => {
+          newData += '<tr>'
+          newData += '<td>'
+          newData += index + 1
+          newData += '</td>'
+          newData += '<td>'
+          newData += row.name
+          newData += '</td>'
+          newData += '<td>'
+          newData += new Date(row.in).toLocaleTimeString("en-us", options)
+          newData += '</td>'
+          newData += '<td>'
+          newData += new Date(row.out).toLocaleTimeString("en-us", options)
+          newData += '</td>'
+          newData += '</tr>'
+        });
+      } else {
+        newData += '<tr>'
+        newData += '<td colspan="4">'
+        newData += 'ไม่มีข้อมูล'
+        newData += '</td>'
+        newData += '</tr>'
+      }
+
+      document.getElementById('show-data').innerHTML = newData
+    });
+  }
+
+  function onChangeDate() {
+    var dateSelect = $('#date').val()
+    dateSelect = dateSelect.split('-')
+    newDateSelect = `${dateSelect[1]}-${dateSelect[2]}-${dateSelect[0]}`
+
+    console.log(newDateSelect)
+    $.get(`http://localhost:5000/report?date=${newDateSelect}`, function (data) {
+      console.log('change data ->>>', data)
+      var newData = ''
+      if (data.result.length !== 0) {
+        data.result.forEach((row, index) => {
+          newData += '<tr>'
+          newData += '<td>'
+          newData += index + 1
+          newData += '</td>'
+          newData += '<td>'
+          newData += row.name
+          newData += '</td>'
+          newData += '<td>'
+          newData += new Date(row.in).toLocaleTimeString("en-us", options)
+          newData += '</td>'
+          newData += '<td>'
+          newData += new Date(row.out).toLocaleTimeString("en-us", options)
+          newData += '</td>'
+          newData += '</tr>'
+        });
+      } else {
+        newData += '<tr>'
+        newData += '<td colspan="4">'
+        newData += 'ไม่มีข้อมูล'
+        newData += '</td>'
+        newData += '</tr>'
+      }
+
+      document.getElementById('show-data').innerHTML = newData
+    });
+  }
+</script>
 
 </html>
